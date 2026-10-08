@@ -24,14 +24,16 @@ interface DishDao {
     @Query("SELECT * FROM dish ORDER BY name COLLATE NOCASE")
     fun observeAll(): Flow<List<Dish>>
 
+    /** Coldest first: never cooked, then longest ago; ties by name. */
     @Query(
         """
         SELECT dish.*, MAX(cook_event.cookedAt) AS lastCookedAt
         FROM dish LEFT JOIN cook_event ON cook_event.dishId = dish.id
         GROUP BY dish.id
+        ORDER BY lastCookedAt IS NOT NULL, lastCookedAt, dish.name COLLATE NOCASE
         """,
     )
-    suspend fun getAllWithLastCooked(): List<DishWithLastCooked>
+    fun observeAllWithLastCooked(): Flow<List<DishWithLastCooked>>
 }
 
 @Dao

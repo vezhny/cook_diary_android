@@ -11,7 +11,7 @@ class CookRepository(
 
     fun observeHistory(): Flow<List<CookEventWithDish>> = cookEventDao.observeHistory()
 
-    suspend fun getDishesForPicking(): List<DishWithLastCooked> = dishDao.getAllWithLastCooked()
+    fun observeDishesWithLastCooked(): Flow<List<DishWithLastCooked>> = dishDao.observeAllWithLastCooked()
 
     suspend fun getDish(id: Long): Dish? = dishDao.getById(id)
 
