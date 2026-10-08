@@ -21,15 +21,8 @@ interface DishDao {
     @Query("SELECT * FROM dish WHERE id = :id")
     suspend fun getById(id: Long): Dish?
 
-    @Query(
-        """
-        SELECT dish.*, MAX(cook_event.cookedAt) AS lastCookedAt
-        FROM dish LEFT JOIN cook_event ON cook_event.dishId = dish.id
-        GROUP BY dish.id
-        ORDER BY dish.name COLLATE NOCASE
-        """,
-    )
-    fun observeAllWithLastCooked(): Flow<List<DishWithLastCooked>>
+    @Query("SELECT * FROM dish ORDER BY name COLLATE NOCASE")
+    fun observeAll(): Flow<List<Dish>>
 
     @Query(
         """

@@ -7,7 +7,7 @@ class CookRepository(
     private val cookEventDao: CookEventDao,
     private val clock: () -> Long = System::currentTimeMillis,
 ) {
-    fun observeDishes(): Flow<List<DishWithLastCooked>> = dishDao.observeAllWithLastCooked()
+    fun observeDishes(): Flow<List<Dish>> = dishDao.observeAll()
 
     fun observeHistory(): Flow<List<CookEventWithDish>> = cookEventDao.observeHistory()
 

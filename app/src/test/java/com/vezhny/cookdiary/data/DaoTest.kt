@@ -52,7 +52,7 @@ class DaoTest {
         repository.markCooked(soup, at = 300)
         repository.markCooked(soup, at = 200)
 
-        val byId = repository.observeDishes().first().associateBy { it.dish.id }
+        val byId = repository.getDishesForPicking().associateBy { it.dish.id }
         assertEquals(300L, byId[soup]?.lastCookedAt)
         assertNull(byId[omelette]?.lastCookedAt)
     }
@@ -63,7 +63,7 @@ class DaoTest {
         repository.saveDish(Dish(name = "A"))
         repository.saveDish(Dish(name = "c"))
 
-        assertEquals(listOf("A", "b", "c"), repository.observeDishes().first().map { it.dish.name })
+        assertEquals(listOf("A", "b", "c"), repository.observeDishes().first().map { it.name })
     }
 
     @Test
@@ -96,6 +96,6 @@ class DaoTest {
         repository.deleteCookEvent(event)
 
         assertEquals(emptyList<CookEventWithDish>(), repository.observeHistory().first())
-        assertNull(repository.observeDishes().first().single().lastCookedAt)
+        assertNull(repository.getDishesForPicking().single().lastCookedAt)
     }
 }
