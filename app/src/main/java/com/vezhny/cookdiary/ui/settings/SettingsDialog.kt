@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
+import com.vezhny.cookdiary.BuildConfig
 import com.vezhny.cookdiary.R
 import com.vezhny.cookdiary.data.AppLanguage
 import com.vezhny.cookdiary.data.ThemeMode
@@ -56,6 +57,12 @@ fun SettingsDialog(
                 HorizontalDivider(Modifier.padding(vertical = 8.dp))
                 SectionTitle(stringResource(R.string.language))
                 RadioGroup(AppLanguage.entries, language, { stringResource(it.labelRes) }, onLanguage)
+                Text(
+                    stringResource(R.string.version, BuildConfig.VERSION_NAME),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 16.dp),
+                )
             }
         },
         confirmButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.done)) } },

@@ -85,6 +85,22 @@ Or open the project in Android Studio and run the `app` configuration.
 
 [GitHub Actions](.github/workflows/android.yml) runs `./gradlew lint test assembleDebug` on every push and pull request. Lint and test reports are uploaded as build artifacts.
 
+## Versioning
+
+The app follows [Semantic Versioning](https://semver.org/). The version lives in one place, `appVersion` in [`gradle.properties`](gradle.properties):
+
+- `versionName` is `appVersion` itself, e.g. `0.2.0`.
+- `versionCode` is derived from it as `MAJOR * 10000 + MINOR * 100 + PATCH` (`0.2.0` → `200`), so it always grows with the version. MINOR and PATCH must stay within 0–99.
+
+To release:
+
+1. Bump `appVersion`.
+2. Move the `[Unreleased]` notes in [`CHANGELOG.md`](CHANGELOG.md) under the new version.
+3. Merge to `master`.
+4. Tag the merge commit, e.g. `git tag v0.2.0 && git push origin v0.2.0`.
+
+The current version is shown at the bottom of the in-app settings dialog.
+
 ## Import / export format
 
 ```json

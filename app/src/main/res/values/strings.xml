@@ -82,6 +82,7 @@
     <string name="theme_dark">Dark</string>
     <string name="language">Language</string>
     <string name="language_system">System default</string>
+    <string name="version" translatable="false">Cook Diary %1$s</string>
     <!-- Language names are shown in their own language. -->
     <string name="language_english" translatable="false">English</string>
     <string name="language_russian" translatable="false">Русский</string>
