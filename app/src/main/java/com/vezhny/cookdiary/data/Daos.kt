@@ -21,8 +21,14 @@ interface DishDao {
     @Query("SELECT * FROM dish WHERE id = :id")
     suspend fun getById(id: Long): Dish?
 
+    @Insert
+    suspend fun insertAll(dishes: List<Dish>)
+
     @Query("SELECT * FROM dish ORDER BY name COLLATE NOCASE")
     fun observeAll(): Flow<List<Dish>>
+
+    @Query("SELECT * FROM dish ORDER BY name COLLATE NOCASE")
+    suspend fun getAll(): List<Dish>
 
     /** Coldest first: never cooked, then longest ago; ties by name. */
     @Query(
