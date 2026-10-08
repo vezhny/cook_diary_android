@@ -8,6 +8,18 @@ plugins {
     alias(libs.plugins.room)
 }
 
+// Single source of truth: appVersion in gradle.properties (MAJOR.MINOR.PATCH).
+// versionCode = MAJOR * 10000 + MINOR * 100 + PATCH, so it always grows with the version.
+val appVersion: String = providers.gradleProperty("appVersion").get()
+val appVersionCode: Int = run {
+    val parts = appVersion.split('.').map { it.toIntOrNull() }
+    require(parts.size == 3 && parts.all { it != null && it in 0..99 }) {
+        "appVersion must be MAJOR.MINOR.PATCH with MINOR and PATCH in 0..99, was '$appVersion'"
+    }
+    val (major, minor, patch) = parts.map { it!! }
+    major * 10_000 + minor * 100 + patch
+}
+
 android {
     namespace = "com.vezhny.cookdiary"
     compileSdk = 37
@@ -16,8 +28,8 @@ android {
         applicationId = "com.vezhny.cookdiary"
         minSdk = 26
         targetSdk = 37
-        versionCode = 1
-        versionName = "0.1.0"
+        versionCode = appVersionCode
+        versionName = appVersion
     }
 
     buildTypes {
@@ -35,6 +47,12 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true // BuildConfig.VERSION_NAME is shown in the settings dialog
+    }
+
+    androidResources {
+        // Only the app's languages: drops partial translations bundled with libraries.
+        localeFilters += listOf("en", "ru")
     }
 
     testOptions {
@@ -54,11 +72,12 @@ room {
 
 dependencies {
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.kotlinx.serialization.core)
+    implementation(libs.kotlinx.serialization.json)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.ui)

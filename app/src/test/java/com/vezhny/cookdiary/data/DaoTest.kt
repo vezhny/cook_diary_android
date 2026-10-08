@@ -82,6 +82,25 @@ class DaoTest {
     }
 
     @Test
+    fun `import skips names that already exist or repeat, ignoring case`() = runTest {
+        repository.saveDish(Dish(name = "Борщ", note = "старая заметка"))
+
+        val added = repository.importDishes(
+            listOf(
+                Dish(id = 42, name = "борщ", note = "новая заметка"),
+                Dish(name = "Омлет", tags = "завтрак"),
+                Dish(name = "ОМЛЕТ"),
+            ),
+        )
+
+        assertEquals(1, added)
+        val all = repository.getAllDishes()
+        assertEquals(listOf("Борщ", "Омлет"), all.map { it.name })
+        assertEquals("старая заметка", all.first().note)
+        assertEquals("завтрак", all.last().tags)
+    }
+
+    @Test
     fun `history is newest first with dish names`() = runTest {
         val soup = repository.saveDish(Dish(name = "Суп"))
         val pasta = repository.saveDish(Dish(name = "Паста"))
