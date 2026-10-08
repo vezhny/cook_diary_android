@@ -3,6 +3,7 @@ package com.vezhny.cookdiary.ui.dishes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -64,9 +65,12 @@ fun DishEditScreen(
     }
 
     Scaffold(
+        // The app-level Scaffold already applies system bar insets.
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
                 title = { Text(if (state.isNew) "Новое блюдо" else "Блюдо") },
+                windowInsets = WindowInsets(0, 0, 0, 0),
                 navigationIcon = {
                     IconButton(onClick = onDone) { Icon(Icons.Filled.ArrowBack, contentDescription = "Назад") }
                 },

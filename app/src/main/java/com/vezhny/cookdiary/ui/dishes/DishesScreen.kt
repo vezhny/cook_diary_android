@@ -13,7 +13,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,6 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,11 +44,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.vezhny.cookdiary.ui.EmptyState
 import org.koin.androidx.compose.koinViewModel
 
 /** Some file managers report .json files as plain text or binary. */
 private val importMimeTypes = arrayOf("application/json", "text/plain", "application/octet-stream")
 
+@Suppress("DEPRECATION") // Icons.Filled.List: AutoMirrored variant lives in material-icons-extended.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DishesScreen(
@@ -105,8 +110,11 @@ fun DishesScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = { onEditDish(0) }) {
-                Icon(Icons.Filled.Add, contentDescription = "Добавить блюдо")
+            // The empty state has its own "add" button.
+            if (!dishes.isNullOrEmpty()) {
+                FloatingActionButton(onClick = { onEditDish(0) }) {
+                    Icon(Icons.Filled.Add, contentDescription = "Добавить блюдо")
+                }
             }
         },
         snackbarHost = { SnackbarHost(snackbar) },
@@ -115,11 +123,14 @@ fun DishesScreen(
             val list = dishes
             when {
                 list == null -> Unit
-                list.isEmpty() -> Text(
-                    "Список пуст. Нажмите «+», чтобы добавить первое блюдо, или импортируйте список через меню «⋮».",
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.align(Alignment.Center).padding(32.dp),
-                )
+                list.isEmpty() -> EmptyState(
+                    icon = Icons.Filled.List,
+                    title = "Список блюд пуст",
+                    text = "Добавьте блюда, которые вы готовите, или загрузите список из файла.",
+                ) {
+                    Button(onClick = { onEditDish(0) }) { Text("Добавить блюдо") }
+                    TextButton(onClick = { importLauncher.launch(importMimeTypes) }) { Text("Импорт из файла") }
+                }
                 else -> LazyColumn(Modifier.fillMaxSize()) {
                     items(list, key = { it.id }) { dish ->
                         ListItem(

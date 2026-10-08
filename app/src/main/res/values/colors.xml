@@ -1,4 +1,6 @@
 <resources>
     <!-- Beige backdrop of the launcher artwork. -->
     <color name="ic_launcher_background">#FFFAECD7</color>
+    <!-- Same as the Compose color scheme background (see ui/theme/Theme.kt). -->
+    <color name="window_background">#FFFFF8F1</color>
 </resources>

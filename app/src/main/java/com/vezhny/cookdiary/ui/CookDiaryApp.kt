@@ -49,6 +49,12 @@ fun CookDiaryApp() {
     val currentDestination = backStackEntry?.destination
     val showBottomBar = topLevelDestinations.any { currentDestination?.hasRoute(it.routeClass) == true }
 
+    fun navigateTopLevel(route: Any) = navController.navigate(route) {
+        popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
+    }
+
     Scaffold(
         bottomBar = {
             if (showBottomBar) {
@@ -56,13 +62,7 @@ fun CookDiaryApp() {
                     topLevelDestinations.forEach { dest ->
                         NavigationBarItem(
                             selected = currentDestination?.hasRoute(dest.routeClass) == true,
-                            onClick = {
-                                navController.navigate(dest.route) {
-                                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            },
+                            onClick = { navigateTopLevel(dest.route) },
                             icon = { Icon(dest.icon, contentDescription = null) },
                             label = { Text(dest.label) },
                         )
@@ -76,7 +76,9 @@ fun CookDiaryApp() {
             startDestination = HomeRoute,
             modifier = Modifier.padding(padding),
         ) {
-            composable<HomeRoute> { HomeScreen() }
+            composable<HomeRoute> {
+                HomeScreen(onAddDish = { navController.navigate(DishEditRoute()) })
+            }
             composable<DishesRoute> {
                 DishesScreen(onEditDish = { id -> navController.navigate(DishEditRoute(id)) })
             }
@@ -86,7 +88,7 @@ fun CookDiaryApp() {
                     onDone = { navController.popBackStack() },
                 )
             }
-            composable<HistoryRoute> { HistoryScreen() }
+            composable<HistoryRoute> { HistoryScreen(onChooseDish = { navigateTopLevel(HomeRoute) }) }
         }
     }
 }
