@@ -40,10 +40,13 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.vezhny.cookdiary.R
 import com.vezhny.cookdiary.ui.EmptyState
 import org.koin.androidx.compose.koinViewModel
 
@@ -59,6 +62,7 @@ fun DishesScreen(
 ) {
     val dishes by viewModel.dishes.collectAsStateWithLifecycle()
     val message by viewModel.message.collectAsStateWithLifecycle()
+    val messageText = message?.let { transferMessageText(it) }
     val snackbar = remember { SnackbarHostState() }
     var menuOpen by rememberSaveable { mutableStateOf(false) }
 
@@ -70,7 +74,7 @@ fun DishesScreen(
     }
 
     LaunchedEffect(message) {
-        message?.let {
+        messageText?.let {
             viewModel.messageShown()
             snackbar.showSnackbar(it)
         }
@@ -81,16 +85,16 @@ fun DishesScreen(
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
-                title = { Text("Блюда") },
+                title = { Text(stringResource(R.string.nav_dishes)) },
                 windowInsets = WindowInsets(0, 0, 0, 0),
                 actions = {
                     Box {
                         IconButton(onClick = { menuOpen = true }) {
-                            Icon(Icons.Filled.MoreVert, contentDescription = "Ещё")
+                            Icon(Icons.Filled.MoreVert, contentDescription = stringResource(R.string.more))
                         }
                         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                             DropdownMenuItem(
-                                text = { Text("Экспорт в файл") },
+                                text = { Text(stringResource(R.string.export_to_file)) },
                                 enabled = !dishes.isNullOrEmpty(),
                                 onClick = {
                                     menuOpen = false
@@ -98,7 +102,7 @@ fun DishesScreen(
                                 },
                             )
                             DropdownMenuItem(
-                                text = { Text("Импорт из файла") },
+                                text = { Text(stringResource(R.string.import_from_file)) },
                                 onClick = {
                                     menuOpen = false
                                     importLauncher.launch(importMimeTypes)
@@ -113,7 +117,7 @@ fun DishesScreen(
             // The empty state has its own "add" button.
             if (!dishes.isNullOrEmpty()) {
                 FloatingActionButton(onClick = { onEditDish(0) }) {
-                    Icon(Icons.Filled.Add, contentDescription = "Добавить блюдо")
+                    Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.add_dish))
                 }
             }
         },
@@ -125,11 +129,11 @@ fun DishesScreen(
                 list == null -> Unit
                 list.isEmpty() -> EmptyState(
                     icon = Icons.Filled.List,
-                    title = "Список блюд пуст",
-                    text = "Добавьте блюда, которые вы готовите, или загрузите список из файла.",
+                    title = stringResource(R.string.dishes_empty_title),
+                    text = stringResource(R.string.dishes_empty_text),
                 ) {
-                    Button(onClick = { onEditDish(0) }) { Text("Добавить блюдо") }
-                    TextButton(onClick = { importLauncher.launch(importMimeTypes) }) { Text("Импорт из файла") }
+                    Button(onClick = { onEditDish(0) }) { Text(stringResource(R.string.add_dish)) }
+                    TextButton(onClick = { importLauncher.launch(importMimeTypes) }) { Text(stringResource(R.string.import_from_file)) }
                 }
                 else -> LazyColumn(Modifier.fillMaxSize()) {
                     items(list, key = { it.id }) { dish ->
@@ -152,7 +156,7 @@ fun DishesScreen(
                             },
                             trailingContent = {
                                 IconButton(onClick = { onEditDish(dish.id) }) {
-                                    Icon(Icons.Filled.Edit, contentDescription = "Редактировать")
+                                    Icon(Icons.Filled.Edit, contentDescription = stringResource(R.string.edit))
                                 }
                             },
                             modifier = Modifier.clickable { onEditDish(dish.id) },
@@ -163,4 +167,16 @@ fun DishesScreen(
             }
         }
     }
+}
+
+@Composable
+private fun transferMessageText(message: TransferMessage): String = when (message) {
+    is TransferMessage.Exported -> pluralStringResource(R.plurals.export_done, message.count, message.count)
+    is TransferMessage.Imported -> {
+        val added = pluralStringResource(R.plurals.import_added, message.added, message.added)
+        if (message.skipped == 0) added else stringResource(R.string.import_added_with_skipped, added, message.skipped)
+    }
+    TransferMessage.ExportFailed -> stringResource(R.string.export_failed)
+    TransferMessage.ReadFailed -> stringResource(R.string.import_read_failed)
+    TransferMessage.InvalidFile -> stringResource(R.string.import_invalid)
 }

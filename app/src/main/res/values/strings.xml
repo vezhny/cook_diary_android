@@ -1,3 +1,88 @@
 <resources>
-    <string name="app_name">Cook Diary</string>
+    <string name="app_name" translatable="false">Cook Diary</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">What to cook</string>
+    <string name="nav_dishes">Dishes</string>
+    <string name="nav_history">History</string>
+
+    <!-- Common -->
+    <string name="action_what_to_cook">What should I cook?</string>
+    <string name="add_dish">Add dish</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="save">Save</string>
+    <string name="done">Done</string>
+    <string name="close">Close</string>
+    <string name="back">Back</string>
+    <string name="edit">Edit</string>
+    <string name="more">More</string>
+
+    <!-- Dates -->
+    <string name="date_today">Today</string>
+    <string name="date_yesterday">Yesterday</string>
+    <string name="last_cooked_never">Not cooked yet</string>
+    <string name="last_cooked_today">Cooked today</string>
+    <string name="last_cooked_yesterday">Cooked yesterday</string>
+    <plurals name="last_cooked_days_ago">
+        <item quantity="one">Cooked %d day ago</item>
+        <item quantity="other">Cooked %d days ago</item>
+    </plurals>
+
+    <!-- Home -->
+    <string name="settings">Settings</string>
+    <string name="just_cooked">Saved: %1$s. Enjoy your meal!</string>
+    <string name="choose_dish_title">Choose a dish</string>
+    <string name="confirm_cooked">Did you cook “%1$s”?</string>
+    <string name="chooser_empty_title">Nothing to choose from yet</string>
+    <string name="chooser_empty_text">Add the dishes you cook and they will show up here.</string>
+    <string name="filter_empty_title">Nothing found</string>
+    <string name="filter_empty_text">No dishes have all the selected tags.</string>
+    <string name="reset_filter">Clear filter</string>
+
+    <!-- Dishes -->
+    <string name="dishes_empty_title">Your dish list is empty</string>
+    <string name="dishes_empty_text">Add the dishes you cook or load a list from a file.</string>
+    <string name="export_to_file">Export to file</string>
+    <string name="import_from_file">Import from file</string>
+    <plurals name="export_done">
+        <item quantity="one">Exported %d dish</item>
+        <item quantity="other">Exported %d dishes</item>
+    </plurals>
+    <plurals name="import_added">
+        <item quantity="one">Added %d dish</item>
+        <item quantity="other">Added %d dishes</item>
+    </plurals>
+    <string name="import_added_with_skipped">%1$s, already in the list: %2$d</string>
+    <string name="export_failed">Couldn’t save the file</string>
+    <string name="import_read_failed">Couldn’t read the file</string>
+    <string name="import_invalid">This isn’t a dish list file</string>
+
+    <!-- Dish edit -->
+    <string name="dish_new">New dish</string>
+    <string name="dish_edit">Dish</string>
+    <string name="dish_name">Name</string>
+    <string name="dish_tags">Tags, comma-separated</string>
+    <string name="dish_tags_hint">breakfast, soup, quick</string>
+    <string name="dish_note">Note</string>
+    <string name="delete_dish_title">Delete dish?</string>
+    <string name="delete_dish_text">“%1$s” and its whole cooking history will be deleted.</string>
+
+    <!-- History -->
+    <string name="history_empty_title">No history yet</string>
+    <string name="history_empty_text">Tap “What should I cook?”, pick a dish, and it will show up here.</string>
+    <string name="history_remove">Remove from history</string>
+
+    <!-- Settings -->
+    <string name="theme">Theme</string>
+    <string name="theme_system">System default</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="language">Language</string>
+    <string name="language_system">System default</string>
+    <!-- Language names are shown in their own language. -->
+    <string name="language_english" translatable="false">English</string>
+    <string name="language_russian" translatable="false">Русский</string>
 </resources>

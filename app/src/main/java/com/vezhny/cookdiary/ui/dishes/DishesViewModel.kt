@@ -16,6 +16,15 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 import java.time.LocalDate
 
+/** Result of import/export, turned into localized text by the screen. */
+sealed interface TransferMessage {
+    data class Exported(val count: Int) : TransferMessage
+    data class Imported(val added: Int, val skipped: Int) : TransferMessage
+    data object ExportFailed : TransferMessage
+    data object ReadFailed : TransferMessage
+    data object InvalidFile : TransferMessage
+}
+
 class DishesViewModel(
     private val repository: CookRepository,
     private val files: TextFiles,
@@ -24,9 +33,9 @@ class DishesViewModel(
     val dishes: StateFlow<List<Dish>?> = repository.observeDishes()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
-    private val _message = MutableStateFlow<String?>(null)
+    private val _message = MutableStateFlow<TransferMessage?>(null)
     /** One-shot result of import/export to show in a snackbar. */
-    val message: StateFlow<String?> = _message.asStateFlow()
+    val message: StateFlow<TransferMessage?> = _message.asStateFlow()
 
     fun exportFileName(today: LocalDate = LocalDate.now()) = "cook-diary-dishes-$today.json"
 
@@ -34,9 +43,9 @@ class DishesViewModel(
         _message.value = try {
             val dishes = repository.getAllDishes()
             files.write(uri, DishTransfer.encode(dishes))
-            "Экспортировано блюд: ${dishes.size}"
+            TransferMessage.Exported(dishes.size)
         } catch (e: IOException) {
-            "Не удалось сохранить файл"
+            TransferMessage.ExportFailed
         }
     }
 
@@ -44,12 +53,11 @@ class DishesViewModel(
         _message.value = try {
             val dishes = DishTransfer.decode(files.read(uri))
             val added = repository.importDishes(dishes)
-            val skipped = dishes.size - added
-            if (skipped == 0) "Добавлено блюд: $added" else "Добавлено блюд: $added, уже были в списке: $skipped"
+            TransferMessage.Imported(added = added, skipped = dishes.size - added)
         } catch (e: IOException) {
-            "Не удалось прочитать файл"
+            TransferMessage.ReadFailed
         } catch (e: IllegalArgumentException) {
-            "Это не файл со списком блюд"
+            TransferMessage.InvalidFile
         }
     }
 

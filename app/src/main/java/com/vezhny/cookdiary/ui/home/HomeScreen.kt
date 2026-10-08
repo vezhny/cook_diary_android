@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -50,7 +51,7 @@ import com.vezhny.cookdiary.domain.DishHeat
 import com.vezhny.cookdiary.ui.EmptyState
 import com.vezhny.cookdiary.ui.formatLastCooked
 import com.vezhny.cookdiary.ui.settings.SettingsViewModel
-import com.vezhny.cookdiary.ui.settings.ThemeDialog
+import com.vezhny.cookdiary.ui.settings.SettingsDialog
 import com.vezhny.cookdiary.ui.theme.HotRed
 import com.vezhny.cookdiary.ui.toLocalDate
 import kotlinx.coroutines.delay
@@ -66,13 +67,16 @@ fun HomeScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val chooser by viewModel.chooser.collectAsStateWithLifecycle()
     val themeMode by settingsViewModel.themeMode.collectAsStateWithLifecycle()
-    var themeDialogOpen by rememberSaveable { mutableStateOf(false) }
+    // Saveable: the dialog stays open while a language change recreates the activity.
+    var settingsOpen by rememberSaveable { mutableStateOf(false) }
 
-    if (themeDialogOpen) {
-        ThemeDialog(
-            current = themeMode,
-            onSelect = settingsViewModel::setThemeMode,
-            onDismiss = { themeDialogOpen = false },
+    if (settingsOpen) {
+        SettingsDialog(
+            themeMode = themeMode,
+            language = settingsViewModel.language(),
+            onThemeMode = settingsViewModel::setThemeMode,
+            onLanguage = settingsViewModel::setLanguage,
+            onDismiss = { settingsOpen = false },
         )
     }
 
@@ -86,9 +90,9 @@ fun HomeScreen(
     state.confirming?.let { dish ->
         AlertDialog(
             onDismissRequest = viewModel::cancelConfirm,
-            title = { Text("Вы приготовили «${dish.dish.name}»?") },
-            confirmButton = { TextButton(onClick = { viewModel.confirmCooked() }) { Text("Да") } },
-            dismissButton = { TextButton(onClick = viewModel::cancelConfirm) { Text("Нет") } },
+            title = { Text(stringResource(R.string.confirm_cooked, dish.dish.name)) },
+            confirmButton = { TextButton(onClick = { viewModel.confirmCooked() }) { Text(stringResource(R.string.yes)) } },
+            dismissButton = { TextButton(onClick = viewModel::cancelConfirm) { Text(stringResource(R.string.no)) } },
         )
     }
 
@@ -107,16 +111,16 @@ fun HomeScreen(
         StartPane(
             justCooked = state.justCooked,
             onChoose = viewModel::startChoosing,
-            onOpenTheme = { themeDialogOpen = true },
+            onOpenSettings = { settingsOpen = true },
         )
     }
 }
 
 @Composable
-private fun StartPane(justCooked: String?, onChoose: () -> Unit, onOpenTheme: () -> Unit) {
+private fun StartPane(justCooked: String?, onChoose: () -> Unit, onOpenSettings: () -> Unit) {
     Box(Modifier.fillMaxSize()) {
-        IconButton(onClick = onOpenTheme, modifier = Modifier.align(Alignment.TopEnd).padding(4.dp)) {
-            Icon(Icons.Filled.Settings, contentDescription = "Тема оформления")
+        IconButton(onClick = onOpenSettings, modifier = Modifier.align(Alignment.TopEnd).padding(4.dp)) {
+            Icon(Icons.Filled.Settings, contentDescription = stringResource(R.string.settings))
         }
         StartContent(justCooked, onChoose)
     }
@@ -136,13 +140,13 @@ private fun StartContent(justCooked: String?, onChoose: () -> Unit) {
         )
         // Reserve the line so the button doesn't jump when the message appears.
         Text(
-            justCooked?.let { "Записано: $it. Приятного аппетита!" } ?: "",
+            justCooked?.let { stringResource(R.string.just_cooked, it) } ?: "",
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.primary,
             minLines = 2,
         )
         Button(onClick = onChoose, modifier = Modifier.fillMaxWidth().height(72.dp)) {
-            Text("Что приготовить?", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.action_what_to_cook), style = MaterialTheme.typography.titleLarge)
         }
     }
 }
@@ -163,8 +167,8 @@ private fun DishChooser(
             modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 4.dp, top = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text("Выберите блюдо", style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
-            IconButton(onClick = onClose) { Icon(Icons.Filled.Close, contentDescription = "Закрыть") }
+            Text(stringResource(R.string.choose_dish_title), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+            IconButton(onClick = onClose) { Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.close)) }
         }
 
         if (chooser != null && chooser.allTags.isNotEmpty()) {
@@ -187,17 +191,17 @@ private fun DishChooser(
             chooser == null || dishes == null -> Unit
             chooser.noDishes -> EmptyState(
                 icon = Icons.Filled.List,
-                title = "Пока не из чего выбирать",
-                text = "Добавьте блюда, которые вы готовите, — и они появятся здесь.",
+                title = stringResource(R.string.chooser_empty_title),
+                text = stringResource(R.string.chooser_empty_text),
             ) {
-                Button(onClick = onAddDish) { Text("Добавить блюдо") }
+                Button(onClick = onAddDish) { Text(stringResource(R.string.add_dish)) }
             }
             dishes.isEmpty() -> EmptyState(
                 icon = Icons.Filled.Search,
-                title = "Ничего не нашлось",
-                text = "Нет блюд, у которых есть все выбранные теги.",
+                title = stringResource(R.string.filter_empty_title),
+                text = stringResource(R.string.filter_empty_text),
             ) {
-                TextButton(onClick = onClearTags) { Text("Сбросить фильтр") }
+                TextButton(onClick = onClearTags) { Text(stringResource(R.string.reset_filter)) }
             }
             else -> {
                 val today = LocalDate.now()

@@ -20,8 +20,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.vezhny.cookdiary.R
 import com.vezhny.cookdiary.ui.EmptyState
 import com.vezhny.cookdiary.ui.formatDate
 import org.koin.androidx.compose.koinViewModel
@@ -37,18 +39,18 @@ fun HistoryScreen(
     Scaffold(
         // The app-level Scaffold already applies system bar insets.
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
-        topBar = { TopAppBar(title = { Text("История") }, windowInsets = WindowInsets(0, 0, 0, 0)) },
+        topBar = { TopAppBar(title = { Text(stringResource(R.string.nav_history)) }, windowInsets = WindowInsets(0, 0, 0, 0)) },
     ) { padding ->
         val list = days
         when {
             list == null -> Unit
             list.isEmpty() -> EmptyState(
                 icon = Icons.Filled.DateRange,
-                title = "История пока пуста",
-                text = "Нажмите «Что приготовить?», выберите блюдо — и оно появится здесь.",
+                title = stringResource(R.string.history_empty_title),
+                text = stringResource(R.string.history_empty_text),
                 modifier = Modifier.padding(padding),
             ) {
-                Button(onClick = onChooseDish) { Text("Что приготовить?") }
+                Button(onClick = onChooseDish) { Text(stringResource(R.string.action_what_to_cook)) }
             }
             else -> LazyColumn(Modifier.fillMaxSize().padding(padding)) {
                 list.forEach { day ->
@@ -65,7 +67,7 @@ fun HistoryScreen(
                             headlineContent = { Text(event.dishName) },
                             trailingContent = {
                                 IconButton(onClick = { viewModel.delete(event) }) {
-                                    Icon(Icons.Filled.Close, contentDescription = "Убрать из истории")
+                                    Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.history_remove))
                                 }
                             },
                         )

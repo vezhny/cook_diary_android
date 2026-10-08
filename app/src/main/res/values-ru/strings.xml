@@ -1,0 +1,89 @@
+<resources>
+    <!-- Navigation -->
+    <string name="nav_home">Что готовим</string>
+    <string name="nav_dishes">Блюда</string>
+    <string name="nav_history">История</string>
+
+    <!-- Common -->
+    <string name="action_what_to_cook">Что приготовить?</string>
+    <string name="add_dish">Добавить блюдо</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+    <string name="cancel">Отмена</string>
+    <string name="delete">Удалить</string>
+    <string name="save">Сохранить</string>
+    <string name="done">Готово</string>
+    <string name="close">Закрыть</string>
+    <string name="back">Назад</string>
+    <string name="edit">Редактировать</string>
+    <string name="more">Ещё</string>
+
+    <!-- Dates -->
+    <string name="date_today">Сегодня</string>
+    <string name="date_yesterday">Вчера</string>
+    <string name="last_cooked_never">Ещё не готовили</string>
+    <string name="last_cooked_today">Готовили сегодня</string>
+    <string name="last_cooked_yesterday">Готовили вчера</string>
+    <plurals name="last_cooked_days_ago">
+        <item quantity="one">Готовили %d день назад</item>
+        <item quantity="few">Готовили %d дня назад</item>
+        <item quantity="many">Готовили %d дней назад</item>
+        <item quantity="other">Готовили %d дня назад</item>
+    </plurals>
+
+    <!-- Home -->
+    <string name="settings">Настройки</string>
+    <string name="just_cooked">Записано: %1$s. Приятного аппетита!</string>
+    <string name="choose_dish_title">Выберите блюдо</string>
+    <string name="confirm_cooked">Вы приготовили «%1$s»?</string>
+    <string name="chooser_empty_title">Пока не из чего выбирать</string>
+    <string name="chooser_empty_text">Добавьте блюда, которые вы готовите, — и они появятся здесь.</string>
+    <string name="filter_empty_title">Ничего не нашлось</string>
+    <string name="filter_empty_text">Нет блюд, у которых есть все выбранные теги.</string>
+    <string name="reset_filter">Сбросить фильтр</string>
+
+    <!-- Dishes -->
+    <string name="dishes_empty_title">Список блюд пуст</string>
+    <string name="dishes_empty_text">Добавьте блюда, которые вы готовите, или загрузите список из файла.</string>
+    <string name="export_to_file">Экспорт в файл</string>
+    <string name="import_from_file">Импорт из файла</string>
+    <plurals name="export_done">
+        <item quantity="one">Экспортировано %d блюдо</item>
+        <item quantity="few">Экспортировано %d блюда</item>
+        <item quantity="many">Экспортировано %d блюд</item>
+        <item quantity="other">Экспортировано %d блюда</item>
+    </plurals>
+    <plurals name="import_added">
+        <item quantity="one">Добавлено %d блюдо</item>
+        <item quantity="few">Добавлено %d блюда</item>
+        <item quantity="many">Добавлено %d блюд</item>
+        <item quantity="other">Добавлено %d блюда</item>
+    </plurals>
+    <string name="import_added_with_skipped">%1$s, уже были в списке: %2$d</string>
+    <string name="export_failed">Не удалось сохранить файл</string>
+    <string name="import_read_failed">Не удалось прочитать файл</string>
+    <string name="import_invalid">Это не файл со списком блюд</string>
+
+    <!-- Dish edit -->
+    <string name="dish_new">Новое блюдо</string>
+    <string name="dish_edit">Блюдо</string>
+    <string name="dish_name">Название</string>
+    <string name="dish_tags">Теги через запятую</string>
+    <string name="dish_tags_hint">завтрак, суп, быстро</string>
+    <string name="dish_note">Заметка</string>
+    <string name="delete_dish_title">Удалить блюдо?</string>
+    <string name="delete_dish_text">«%1$s» и вся его история готовки будут удалены.</string>
+
+    <!-- History -->
+    <string name="history_empty_title">История пока пуста</string>
+    <string name="history_empty_text">Нажмите «Что приготовить?», выберите блюдо — и оно появится здесь.</string>
+    <string name="history_remove">Убрать из истории</string>
+
+    <!-- Settings -->
+    <string name="theme">Тема</string>
+    <string name="theme_system">Как в системе</string>
+    <string name="theme_light">Светлая</string>
+    <string name="theme_dark">Тёмная</string>
+    <string name="language">Язык</string>
+    <string name="language_system">Как в системе</string>
+</resources>

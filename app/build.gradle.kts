@@ -37,6 +37,11 @@ android {
         compose = true
     }
 
+    androidResources {
+        // Only the app's languages: drops partial translations bundled with libraries.
+        localeFilters += listOf("en", "ru")
+    }
+
     testOptions {
         unitTests.isIncludeAndroidResources = true
     }
@@ -54,6 +59,7 @@ room {
 
 dependencies {
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.appcompat)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)

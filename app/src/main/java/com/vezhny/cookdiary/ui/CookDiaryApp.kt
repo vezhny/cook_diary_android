@@ -1,5 +1,6 @@
 package com.vezhny.cookdiary.ui
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -14,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -21,6 +23,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.vezhny.cookdiary.R
 import com.vezhny.cookdiary.ui.dishes.DishEditScreen
 import com.vezhny.cookdiary.ui.dishes.DishesScreen
 import com.vezhny.cookdiary.ui.history.HistoryScreen
@@ -33,13 +36,18 @@ import kotlin.reflect.KClass
 @Serializable object HistoryRoute
 @Serializable data class DishEditRoute(val dishId: Long = 0)
 
-private data class TopLevelDestination(val route: Any, val routeClass: KClass<*>, val label: String, val icon: ImageVector)
+private data class TopLevelDestination(
+    val route: Any,
+    val routeClass: KClass<*>,
+    @StringRes val label: Int,
+    val icon: ImageVector,
+)
 
 @Suppress("DEPRECATION") // Icons.Filled.List: AutoMirrored variant lives in material-icons-extended.
 private val topLevelDestinations = listOf(
-    TopLevelDestination(HomeRoute, HomeRoute::class, "Что готовим", Icons.Filled.Home),
-    TopLevelDestination(DishesRoute, DishesRoute::class, "Блюда", Icons.Filled.List),
-    TopLevelDestination(HistoryRoute, HistoryRoute::class, "История", Icons.Filled.DateRange),
+    TopLevelDestination(HomeRoute, HomeRoute::class, R.string.nav_home, Icons.Filled.Home),
+    TopLevelDestination(DishesRoute, DishesRoute::class, R.string.nav_dishes, Icons.Filled.List),
+    TopLevelDestination(HistoryRoute, HistoryRoute::class, R.string.nav_history, Icons.Filled.DateRange),
 )
 
 @Composable
@@ -64,7 +72,7 @@ fun CookDiaryApp() {
                             selected = currentDestination?.hasRoute(dest.routeClass) == true,
                             onClick = { navigateTopLevel(dest.route) },
                             icon = { Icon(dest.icon, contentDescription = null) },
-                            label = { Text(dest.label) },
+                            label = { Text(stringResource(dest.label)) },
                         )
                     }
                 }

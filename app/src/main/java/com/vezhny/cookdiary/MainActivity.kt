@@ -2,10 +2,10 @@ package com.vezhny.cookdiary
 
 import android.graphics.Color
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -16,7 +16,8 @@ import com.vezhny.cookdiary.ui.CookDiaryApp
 import com.vezhny.cookdiary.ui.theme.CookDiaryTheme
 import org.koin.android.ext.android.inject
 
-class MainActivity : ComponentActivity() {
+// AppCompatActivity: needed for the in-app language switch on Android 12 and below.
+class MainActivity : AppCompatActivity() {
     private val settings: SettingsRepository by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
