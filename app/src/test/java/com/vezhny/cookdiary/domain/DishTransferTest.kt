@@ -54,6 +54,18 @@ class DishTransferTest {
     }
 
     @Test
+    fun `version is always written`() {
+        val text = DishTransfer.encode(listOf(Dish(name = "Борщ")))
+        assertTrue(text, text.contains(""""version": ${DishTransfer.VERSION}"""))
+    }
+
+    @Test
+    fun `early file without a version field is still readable`() {
+        val decoded = DishTransfer.decode("""{"dishes": [{"name": "Каша"}]}""")
+        assertEquals(listOf(Dish(name = "Каша")), decoded.dishes)
+    }
+
+    @Test
     fun `version 1 file without history is still readable`() {
         val decoded = DishTransfer.decode("""{"version": 1, "dishes": [{"name": "Каша", "tags": ["завтрак"]}]}""")
         assertEquals(listOf(Dish(name = "Каша", tags = "завтрак")), decoded.dishes)
