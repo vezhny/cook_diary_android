@@ -3,6 +3,7 @@ package com.vezhny.cookdiary.ui.dishes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -26,8 +27,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.vezhny.cookdiary.R
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
@@ -47,33 +50,36 @@ fun DishEditScreen(
     if (confirmDelete) {
         AlertDialog(
             onDismissRequest = { confirmDelete = false },
-            title = { Text("Удалить блюдо?") },
-            text = { Text("«${state.name}» и вся его история готовки будут удалены.") },
+            title = { Text(stringResource(R.string.delete_dish_title)) },
+            text = { Text(stringResource(R.string.delete_dish_text, state.name)) },
             confirmButton = {
                 TextButton(
                     onClick = {
                         confirmDelete = false
                         viewModel.delete()
                     },
-                ) { Text("Удалить", color = MaterialTheme.colorScheme.error) }
+                ) { Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error) }
             },
             dismissButton = {
-                TextButton(onClick = { confirmDelete = false }) { Text("Отмена") }
+                TextButton(onClick = { confirmDelete = false }) { Text(stringResource(R.string.cancel)) }
             },
         )
     }
 
     Scaffold(
+        // The app-level Scaffold already applies system bar insets.
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
             TopAppBar(
-                title = { Text(if (state.isNew) "Новое блюдо" else "Блюдо") },
+                title = { Text(stringResource(if (state.isNew) R.string.dish_new else R.string.dish_edit)) },
+                windowInsets = WindowInsets(0, 0, 0, 0),
                 navigationIcon = {
-                    IconButton(onClick = onDone) { Icon(Icons.Filled.ArrowBack, contentDescription = "Назад") }
+                    IconButton(onClick = onDone) { Icon(Icons.Filled.ArrowBack, contentDescription = stringResource(R.string.back)) }
                 },
                 actions = {
                     if (!state.isNew) {
                         IconButton(onClick = { confirmDelete = true }) {
-                            Icon(Icons.Filled.Delete, contentDescription = "Удалить")
+                            Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.delete))
                         }
                     }
                 },
@@ -87,27 +93,27 @@ fun DishEditScreen(
             OutlinedTextField(
                 value = state.name,
                 onValueChange = viewModel::onNameChange,
-                label = { Text("Название") },
+                label = { Text(stringResource(R.string.dish_name)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
             OutlinedTextField(
                 value = state.tags,
                 onValueChange = viewModel::onTagsChange,
-                label = { Text("Теги через запятую") },
-                placeholder = { Text("завтрак, суп, быстро") },
+                label = { Text(stringResource(R.string.dish_tags)) },
+                placeholder = { Text(stringResource(R.string.dish_tags_hint)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
             OutlinedTextField(
                 value = state.note,
                 onValueChange = viewModel::onNoteChange,
-                label = { Text("Заметка") },
+                label = { Text(stringResource(R.string.dish_note)) },
                 minLines = 3,
                 modifier = Modifier.fillMaxWidth(),
             )
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                Button(onClick = { viewModel.save() }, enabled = state.canSave) { Text("Сохранить") }
+                Button(onClick = { viewModel.save() }, enabled = state.canSave) { Text(stringResource(R.string.save)) }
             }
         }
     }

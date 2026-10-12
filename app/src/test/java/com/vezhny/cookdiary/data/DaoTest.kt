@@ -3,8 +3,10 @@ package com.vezhny.cookdiary.data
 import android.app.Application
 import android.content.Context
 import androidx.room.Room
+import androidx.room.withTransaction
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.vezhny.cookdiary.domain.HistoryEntry
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -26,7 +28,7 @@ class DaoTest {
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).allowMainThreadQueries().build()
-        repository = CookRepository(db.dishDao(), db.cookEventDao(), clock = { 0L })
+        repository = CookRepository(db.dishDao(), db.cookEventDao(), RoomTransactor(db), clock = { 0L })
     }
 
     @After
@@ -79,6 +81,83 @@ class DaoTest {
         repository.saveDish(Dish(name = "c"))
 
         assertEquals(listOf("A", "b", "c"), repository.observeDishes().first().map { it.name })
+    }
+
+    @Test
+    fun `import skips names that already exist or repeat, ignoring case`() = runTest {
+        repository.saveDish(Dish(name = "Борщ", note = "старая заметка"))
+
+        val result = repository.importData(
+            listOf(
+                Dish(id = 42, name = "борщ", note = "новая заметка"),
+                Dish(name = "Омлет", tags = "завтрак"),
+                Dish(name = "ОМЛЕТ"),
+            ),
+        )
+
+        assertEquals(ImportResult(dishesAdded = 1, dishesSkipped = 2), result)
+        val all = repository.getAllDishes()
+        assertEquals(listOf("Борщ", "Омлет"), all.map { it.name })
+        assertEquals("старая заметка", all.first().note)
+        assertEquals("завтрак", all.last().tags)
+    }
+
+    @Test
+    fun `history is exported oldest first with dish names`() = runTest {
+        val soup = repository.saveDish(Dish(name = "Суп"))
+        val pasta = repository.saveDish(Dish(name = "Паста"))
+        repository.markCooked(pasta, at = 200)
+        repository.markCooked(soup, at = 100)
+
+        assertEquals(
+            listOf(HistoryEntry("Суп", 100), HistoryEntry("Паста", 200)),
+            repository.getHistoryForExport(),
+        )
+    }
+
+    @Test
+    fun `import links history to existing and new dishes by name`() = runTest {
+        repository.saveDish(Dish(name = "Борщ"))
+
+        val result = repository.importData(
+            dishes = listOf(Dish(name = "Омлет")),
+            history = listOf(HistoryEntry("БОРЩ", 100), HistoryEntry("Омлет", 200), HistoryEntry("Пицца", 300)),
+        )
+
+        assertEquals(ImportResult(dishesAdded = 1, dishesSkipped = 0, historyAdded = 2, historySkipped = 1), result)
+        assertEquals(
+            listOf("Омлет" to 200L, "Борщ" to 100L),
+            repository.observeHistory().first().map { it.dishName to it.cookedAt },
+        )
+    }
+
+    @Test
+    fun `importing the same backup twice adds nothing the second time`() = runTest {
+        val soup = repository.saveDish(Dish(name = "Суп"))
+        repository.markCooked(soup, at = 100)
+        val dishes = repository.getAllDishes()
+        val history = repository.getHistoryForExport()
+
+        val result = repository.importData(dishes, history)
+
+        assertEquals(ImportResult(dishesAdded = 0, dishesSkipped = 1, historyAdded = 0, historySkipped = 1), result)
+        assertEquals(1, repository.observeHistory().first().size)
+    }
+
+    @Test
+    fun `failed import leaves the database untouched`() = runTest {
+        val failing = object : Transactor {
+            override suspend fun <R> inTransaction(block: suspend () -> R): R = db.withTransaction {
+                block()
+                error("disk full")
+            }
+        }
+        val repo = CookRepository(db.dishDao(), db.cookEventDao(), failing)
+
+        runCatching { repo.importData(listOf(Dish(name = "Борщ")), listOf(HistoryEntry("Борщ", 100))) }
+
+        assertEquals(emptyList<Dish>(), repository.getAllDishes())
+        assertEquals(emptyList<HistoryEntry>(), repository.getHistoryForExport())
     }
 
     @Test

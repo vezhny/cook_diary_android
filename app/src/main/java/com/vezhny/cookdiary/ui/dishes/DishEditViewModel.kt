@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vezhny.cookdiary.data.CookRepository
 import com.vezhny.cookdiary.data.Dish
+import com.vezhny.cookdiary.domain.normalizeTags
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -58,11 +59,5 @@ class DishEditViewModel(
     fun delete() = viewModelScope.launch {
         repository.getDish(dishId)?.let { repository.deleteDish(it) }
         _state.update { it.copy(done = true) }
-    }
-
-    companion object {
-        /** "Суп,  быстро , ,суп" -> "суп,быстро" */
-        fun normalizeTags(raw: String): String =
-            raw.split(',').map { it.trim().lowercase() }.filter { it.isNotEmpty() }.distinct().joinToString(",")
     }
 }
