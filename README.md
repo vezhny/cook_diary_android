@@ -17,7 +17,7 @@ Keep a list of the dishes you usually make, mark what you cooked, and when you c
   - Tap a dish and confirm “Did you cook …?” to log it in the history.
 - **Dishes.** Add, edit, and delete dishes with a name, comma-separated tags, and a note. Deleting asks for confirmation and also removes the dish's history.
 - **History.** Cooked dishes grouped by day, newest first. A wrong entry can be removed.
-- **Import / export.** Save the dish list to a JSON file or load one through the system file picker. On import, dishes whose name is already in the list are skipped, ignoring case.
+- **Import / export.** Export either the dish list or everything (dishes plus cooking history) to a JSON file through the system file picker, and import it back on any device. Existing dishes and history entries are never duplicated.
 - **Theme.** Light, dark, or system default, in a palette taken from the app icon.
 - **Language.** English or Russian, or the system default. On Android 13+ the language can also be set in the system's per-app language settings. Only the interface is translated: dish names, tags, and notes stay exactly as you typed them.
 
@@ -103,21 +103,33 @@ The current version is shown at the bottom of the in-app settings dialog.
 
 ## Import / export format
 
+There are two kinds of export, both in the same format:
+
+- **Dishes**: only the dish list (`cook-diary-dishes-<date>.json`).
+- **Everything**: dishes plus the whole cooking history (`cook-diary-dishes-and-history-<date>.json`).
+
 ```json
 {
-  "version": 1,
+  "version": 2,
   "dishes": [
     { "name": "Borscht", "tags": ["soup", "lunch"], "note": "With sour cream" },
     { "name": "Omelette", "tags": ["breakfast"] }
+  ],
+  "history": [
+    { "dish": "Borscht", "cookedAt": "2026-10-08T12:30:00Z" }
   ]
 }
 ```
 
+- `history` is present only in a full export. Entries reference dishes by name, so the file is portable between devices. `cookedAt` is an ISO-8601 instant in UTC.
 - `tags` and `note` are optional, and unknown fields are ignored.
-- Dishes with a blank name are skipped.
-- Tags are trimmed, lowercased, and de-duplicated.
-- Files with a newer `version` than the app supports are rejected.
-- Cooking history is not included.
+- Dishes with a blank name are skipped. Tags are trimmed, lowercased, and de-duplicated.
+- Files with a newer `version` than the app supports are rejected. Version 1 files (dishes only) are still accepted.
+
+Import loads everything the file contains, in a single transaction:
+
+- A dish is skipped if a dish with the same name already exists, ignoring case. The existing dish is kept as is.
+- A history entry is linked to a dish by name, either an existing dish or one imported from the same file. It is skipped if that dish already has an entry at the same moment, so importing the same backup twice adds nothing. It is also skipped if no dish has that name.
 
 ## Localization
 
@@ -149,6 +161,6 @@ $env:JAVA_TOOL_OPTIONS = "-Djdk.net.unixdomain.tmpdir=$HOME\.gradle\tmp"
 ## Roadmap ideas
 
 - Photos and recipes for dishes
-- Full backup including cooking history
+- Automatic backups
 - Sync between devices
 - Compose UI tests

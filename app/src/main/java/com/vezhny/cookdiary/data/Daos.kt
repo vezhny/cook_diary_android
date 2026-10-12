@@ -47,8 +47,23 @@ interface CookEventDao {
     @Insert
     suspend fun insert(event: CookEvent): Long
 
+    @Insert
+    suspend fun insertAll(events: List<CookEvent>)
+
     @Query("DELETE FROM cook_event WHERE id = :id")
     suspend fun deleteById(id: Long)
+
+    @Query("SELECT * FROM cook_event")
+    suspend fun getAll(): List<CookEvent>
+
+    @Query(
+        """
+        SELECT cook_event.id AS eventId, dish.id AS dishId, dish.name AS dishName, cook_event.cookedAt
+        FROM cook_event JOIN dish ON dish.id = cook_event.dishId
+        ORDER BY cook_event.cookedAt
+        """,
+    )
+    suspend fun getHistory(): List<CookEventWithDish>
 
     @Query(
         """

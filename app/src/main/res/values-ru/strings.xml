@@ -45,7 +45,8 @@
     <!-- Dishes -->
     <string name="dishes_empty_title">Список блюд пуст</string>
     <string name="dishes_empty_text">Добавьте блюда, которые вы готовите, или загрузите список из файла.</string>
-    <string name="export_to_file">Экспорт в файл</string>
+    <string name="export_dishes">Экспорт блюд</string>
+    <string name="export_everything">Экспорт всего (с историей)</string>
     <string name="import_from_file">Импорт из файла</string>
     <plurals name="export_done">
         <item quantity="one">Экспортировано %d блюдо</item>
@@ -60,9 +61,11 @@
         <item quantity="other">Добавлено %d блюда</item>
     </plurals>
     <string name="import_added_with_skipped">%1$s, уже были в списке: %2$d</string>
+    <string name="import_history_added">%1$s, записей истории добавлено: %2$d</string>
+    <string name="export_done_with_history">%1$s, записей истории: %2$d</string>
     <string name="export_failed">Не удалось сохранить файл</string>
     <string name="import_read_failed">Не удалось прочитать файл</string>
-    <string name="import_invalid">Это не файл со списком блюд</string>
+    <string name="import_invalid">Это не файл Cook Diary</string>
 
     <!-- Dish edit -->
     <string name="dish_new">Новое блюдо</string>

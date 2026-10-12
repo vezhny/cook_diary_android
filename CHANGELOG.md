@@ -13,7 +13,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   - Sorted by days since last cooked (longest ago first), then by tags, then by name.
   - Filter by tags. Dishes must have all selected tags.
   - Confirmation “Did you cook …?” before a dish is logged.
-- Import and export of the dish list as JSON. On import, dishes whose name already exists are skipped.
+- Import and export as JSON:
+  - Export either only the dishes or everything: dishes plus cooking history.
+  - Import loads whatever the file contains, in one transaction. Dishes are matched by name, and history entries already present are skipped, so re-importing a backup adds nothing.
 - Settings dialog:
   - Theme: system default, light, or dark.
   - Language: system default, English, or Russian.

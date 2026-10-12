@@ -45,7 +45,8 @@
     <!-- Dishes -->
     <string name="dishes_empty_title">Your dish list is empty</string>
     <string name="dishes_empty_text">Add the dishes you cook or load a list from a file.</string>
-    <string name="export_to_file">Export to file</string>
+    <string name="export_dishes">Export dishes</string>
+    <string name="export_everything">Export everything (with history)</string>
     <string name="import_from_file">Import from file</string>
     <plurals name="export_done">
         <item quantity="one">Exported %d dish</item>
@@ -56,9 +57,11 @@
         <item quantity="other">Added %d dishes</item>
     </plurals>
     <string name="import_added_with_skipped">%1$s, already in the list: %2$d</string>
+    <string name="import_history_added">%1$s, history entries added: %2$d</string>
+    <string name="export_done_with_history">%1$s, history entries: %2$d</string>
     <string name="export_failed">Couldn’t save the file</string>
     <string name="import_read_failed">Couldn’t read the file</string>
-    <string name="import_invalid">This isn’t a dish list file</string>
+    <string name="import_invalid">This isn’t a Cook Diary file</string>
 
     <!-- Dish edit -->
     <string name="dish_new">New dish</string>

@@ -65,9 +65,17 @@ fun DishesScreen(
     val messageText = message?.let { transferMessageText(it) }
     val snackbar = remember { SnackbarHostState() }
     var menuOpen by rememberSaveable { mutableStateOf(false) }
+    // Saveable: the file picker is another activity, our process may be killed meanwhile.
+    var exportScope by rememberSaveable { mutableStateOf(ExportScope.DISHES) }
 
     val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) {
-        uri -> uri?.let(viewModel::export)
+        uri -> uri?.let { viewModel.export(it, exportScope) }
+    }
+
+    fun startExport(scope: ExportScope) {
+        menuOpen = false
+        exportScope = scope
+        exportLauncher.launch(viewModel.exportFileName(scope))
     }
     val importLauncher = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) {
         uri -> uri?.let(viewModel::import)
@@ -94,13 +102,16 @@ fun DishesScreen(
                         }
                         DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
                             DropdownMenuItem(
-                                text = { Text(stringResource(R.string.export_to_file)) },
+                                text = { Text(stringResource(R.string.export_dishes)) },
                                 enabled = !dishes.isNullOrEmpty(),
-                                onClick = {
-                                    menuOpen = false
-                                    exportLauncher.launch(viewModel.exportFileName())
-                                },
+                                onClick = { startExport(ExportScope.DISHES) },
                             )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.export_everything)) },
+                                enabled = !dishes.isNullOrEmpty(),
+                                onClick = { startExport(ExportScope.EVERYTHING) },
+                            )
+                            HorizontalDivider()
                             DropdownMenuItem(
                                 text = { Text(stringResource(R.string.import_from_file)) },
                                 onClick = {
@@ -171,10 +182,16 @@ fun DishesScreen(
 
 @Composable
 private fun transferMessageText(message: TransferMessage): String = when (message) {
-    is TransferMessage.Exported -> pluralStringResource(R.plurals.export_done, message.count, message.count)
+    is TransferMessage.Exported -> {
+        val dishes = pluralStringResource(R.plurals.export_done, message.dishCount, message.dishCount)
+        message.historyCount?.let { stringResource(R.string.export_done_with_history, dishes, it) } ?: dishes
+    }
     is TransferMessage.Imported -> {
-        val added = pluralStringResource(R.plurals.import_added, message.added, message.added)
-        if (message.skipped == 0) added else stringResource(R.string.import_added_with_skipped, added, message.skipped)
+        val r = message.result
+        var text = pluralStringResource(R.plurals.import_added, r.dishesAdded, r.dishesAdded)
+        if (r.dishesSkipped > 0) text = stringResource(R.string.import_added_with_skipped, text, r.dishesSkipped)
+        if (r.historyAdded + r.historySkipped > 0) text = stringResource(R.string.import_history_added, text, r.historyAdded)
+        text
     }
     TransferMessage.ExportFailed -> stringResource(R.string.export_failed)
     TransferMessage.ReadFailed -> stringResource(R.string.import_read_failed)
