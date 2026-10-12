@@ -27,7 +27,9 @@ object DishTransfer {
 
     @Serializable
     private data class FileDto(
-        val version: Int = VERSION,
+        // A missing version means an early file that didn't write it: those are all version 1.
+        // encode() always passes VERSION explicitly, and a non-default value is always written.
+        val version: Int = 1,
         val dishes: List<DishDto>,
         val history: List<HistoryDto>? = null,
     )
@@ -48,6 +50,7 @@ object DishTransfer {
     fun encode(dishes: List<Dish>, history: List<HistoryEntry>? = null): String = json.encodeToString(
         FileDto.serializer(),
         FileDto(
+            version = VERSION,
             dishes = dishes.map { DishDto(it.name, it.tagList, it.note) },
             history = history?.map { HistoryDto(it.dishName, Instant.ofEpochMilli(it.cookedAt).toString()) },
         ),

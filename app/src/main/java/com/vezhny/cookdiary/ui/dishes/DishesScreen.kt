@@ -82,10 +82,10 @@ fun DishesScreen(
     }
 
     LaunchedEffect(message) {
-        messageText?.let {
-            viewModel.messageShown()
-            snackbar.showSnackbar(it)
-        }
+        // Clear only after showing: clearing changes the key, which would cancel the snackbar.
+        val text = messageText ?: return@LaunchedEffect
+        snackbar.showSnackbar(text)
+        viewModel.messageShown()
     }
 
     Scaffold(
