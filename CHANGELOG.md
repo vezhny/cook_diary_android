@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Fixed
+- A quick tap right after switching screens no longer goes to the previous screen. For example, tapping “What should I cook?” just after leaving the dish editor opened the editor for whichever dish was under the button.
+
+### Changed
+- Screen transitions are shorter (150 ms instead of 700 ms).
+
 ## [0.2.0] - 2026-10-08
 
 ### Added
