@@ -1,6 +1,10 @@
 package com.vezhny.cookdiary.ui
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
@@ -12,12 +16,17 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -53,7 +62,8 @@ private val topLevelDestinations = listOf(
 @Composable
 fun CookDiaryApp() {
     val navController = rememberNavController()
-    val backStackEntry by navController.currentBackStackEntryAsState()
+    val backStackEntryState = navController.currentBackStackEntryAsState()
+    val backStackEntry by backStackEntryState
     val currentDestination = backStackEntry?.destination
     val showBottomBar = topLevelDestinations.any { currentDestination?.hasRoute(it.routeClass) == true }
 
@@ -83,20 +93,59 @@ fun CookDiaryApp() {
             navController = navController,
             startDestination = HomeRoute,
             modifier = Modifier.padding(padding),
+            // Short cross-fade instead of the default 700 ms one: while it runs the old screen
+            // ignores taps (see InputOnlyWhenCurrent), so keep that window small.
+            enterTransition = { fadeIn(tween(TRANSITION_MILLIS)) },
+            exitTransition = { fadeOut(tween(TRANSITION_MILLIS)) },
         ) {
-            composable<HomeRoute> {
+            screen<HomeRoute>(backStackEntryState) {
                 HomeScreen(onAddDish = { navController.navigate(DishEditRoute()) })
             }
-            composable<DishesRoute> {
+            screen<DishesRoute>(backStackEntryState) {
                 DishesScreen(onEditDish = { id -> navController.navigate(DishEditRoute(id)) })
             }
-            composable<DishEditRoute> { entry ->
+            screen<DishEditRoute>(backStackEntryState) { entry ->
                 DishEditScreen(
                     dishId = entry.toRoute<DishEditRoute>().dishId,
                     onDone = { navController.popBackStack() },
                 )
             }
-            composable<HistoryRoute> { HistoryScreen(onChooseDish = { navigateTopLevel(HomeRoute) }) }
+            screen<HistoryRoute>(backStackEntryState) { HistoryScreen(onChooseDish = { navigateTopLevel(HomeRoute) }) }
+        }
+    }
+}
+
+private const val TRANSITION_MILLIS = 150
+
+/** A destination whose screen accepts touches only while it is the current one; see [InputOnlyWhenCurrent]. */
+private inline fun <reified T : Any> NavGraphBuilder.screen(
+    currentEntry: State<NavBackStackEntry?>,
+    noinline content: @Composable (NavBackStackEntry) -> Unit,
+) = composable<T> { entry ->
+    InputOnlyWhenCurrent(isCurrent = entry.id == currentEntry.value?.id) { content(entry) }
+}
+
+/**
+ * After navigating, the outgoing screen stays composed on top of the incoming one until the
+ * transition ends (a few frames even with no animation) and would get the touches. A quick tap
+ * meant for the new screen then lands on the old one, e.g. "What should I cook?" right after
+ * switching tabs opened the dish whose row was underneath. A non-current screen is covered by a
+ * layer that swallows all touches: a tap in that short window is lost rather than misdirected.
+ */
+@Composable
+private fun InputOnlyWhenCurrent(isCurrent: Boolean, content: @Composable () -> Unit) {
+    Box {
+        content()
+        if (!isCurrent) {
+            Box(
+                Modifier
+                    .matchParentSize()
+                    .pointerInput(Unit) {
+                        awaitPointerEventScope {
+                            while (true) awaitPointerEvent(PointerEventPass.Initial).changes.forEach { it.consume() }
+                        }
+                    },
+            )
         }
     }
 }
